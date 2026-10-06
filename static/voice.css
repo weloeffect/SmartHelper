@@ -1,0 +1,6 @@
+.composer .voice-button{background:#e6f8f3;color:#117b70;font-size:17px}
+.composer .voice-button:hover{background:#c9eee4}
+.composer .voice-button.recording{background:#d94d5d;color:#fff;animation:voice-pulse 1s infinite alternate}
+.voice-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 3px 0;color:#637b8e;font-size:11px}
+.voice-controls button{border:0;background:transparent;color:#117b70;font:inherit;font-weight:700;cursor:pointer;white-space:nowrap}
+@keyframes voice-pulse{to{box-shadow:0 0 0 5px #d94d5d33}}

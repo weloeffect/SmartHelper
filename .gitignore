@@ -1,0 +1,12 @@
+# Local credentials and generated files
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.rag_cache/
+
+# Local implementation plans
+bca_imp_plan.md
+rag_documentation_assistant_implementation_plan.md
+voice_customer_support_implementation_plan.md

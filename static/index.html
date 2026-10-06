@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SmartHelper</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/voice.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">S</span><div><strong>SmartHelper</strong><small>Support assistant</small></div></div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">TRY A QUESTION</div>
+          <button class="prompt-chip" data-question="How do I create my first task?">How do I create my first task?</button>
+          <button class="prompt-chip" data-question="Can a Viewer edit a task?">Can a Viewer edit a task?</button>
+          <button class="prompt-chip" data-question="What happens if a webhook fails?">What happens if a webhook fails?</button>
+          <button class="prompt-chip" data-question="How much does HarborDesk cost?">How much does HarborDesk cost?</button>
+        </div>
+        <div class="sidebar-footer">
+          <button id="refresh-button" class="refresh-button" type="button">↻ Refresh documents</button>
+          <div id="index-status" class="index-status">Loading documents…</div>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar"><span class="topbar-title">SmartHelper</span></header>
+        <div id="chat-scroll" class="chat-scroll">
+          <div id="conversation" class="conversation">
+            <div class="welcome">
+              <div class="welcome-icon">✦</div>
+              <div class="eyebrow">ASK THE DOCUMENTATION</div>
+              <h1>What can we help you find?</h1>
+              <p>Ask about HarborDesk features, setup, API behavior, or support. Answers link back to the exact documentation sections.</p>
+            </div>
+          </div>
+        </div>
+        <form id="question-form" class="composer-wrap">
+          <div class="composer"><textarea id="question-input" maxlength="2000" rows="1" placeholder="Ask a question about HarborDesk…" aria-label="Your question"></textarea><button id="voice-button" class="voice-button" type="button" aria-label="Start voice question" title="Start voice question">🎙</button><button id="send-button" type="submit" aria-label="Send question">➜</button></div>
+          <div class="voice-controls"><span id="voice-status" role="status" aria-live="polite">Tap the microphone to ask by voice.</span><button id="stop-audio" type="button" hidden>Stop audio</button></div>
+          <div class="composer-hint">Answers use the mock documentation. Verify important details in the linked sources.</div>
+        </form>
+      </main>
+    </div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

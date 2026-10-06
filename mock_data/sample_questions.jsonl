@@ -1,0 +1,15 @@
+{"id":"Q01","question":"How do I create my first task?","expected_document_ids":["HD-PROD-001"],"answerable_for_public":true}
+{"id":"Q02","question":"Can a Viewer edit a task?","expected_document_ids":["HD-PROD-002"],"answerable_for_public":true}
+{"id":"Q03","question":"Who can transfer workspace ownership?","expected_document_ids":["HD-PROD-002"],"answerable_for_public":true}
+{"id":"Q04","question":"How long does an invitation remain valid?","expected_document_ids":["HD-PROD-001","HD-SUP-002"],"answerable_for_public":true}
+{"id":"Q05","question":"What happens if I import a CSV with an unknown assignee email?","expected_document_ids":["HD-SUP-001"],"answerable_for_public":true}
+{"id":"Q06","question":"Does the task export include attachments?","expected_document_ids":["HD-SUP-001"],"answerable_for_public":true}
+{"id":"Q07","question":"How many API requests can one token make per minute?","expected_document_ids":["HD-PROD-003"],"answerable_for_public":true}
+{"id":"Q08","question":"Can my API token see workspaces I cannot access?","expected_document_ids":["HD-PROD-003"],"answerable_for_public":true}
+{"id":"Q09","question":"Can webhook events arrive more than once or out of order?","expected_document_ids":["HD-PROD-004"],"answerable_for_public":true}
+{"id":"Q10","question":"What changed about webhook retries in September?","expected_document_ids":["HD-REL-001","HD-PROD-004"],"answerable_for_public":true}
+{"id":"Q11","question":"When do due-date reminder emails go out?","expected_document_ids":["HD-SUP-002"],"answerable_for_public":true}
+{"id":"Q12","question":"How much does HarborDesk cost per month?","expected_document_ids":[],"answerable_for_public":false}
+{"id":"Q13","question":"Does HarborDesk support private projects?","expected_document_ids":["HD-PROD-002"],"answerable_for_public":true}
+{"id":"Q14","question":"What is the guaranteed support response time?","expected_document_ids":["HD-SUP-002"],"answerable_for_public":true}
+{"id":"Q15","question":"Who is paged when an API outage lasts over 15 minutes?","expected_document_ids":[],"answerable_for_public":false,"note":"Internal document contains an answer, but public users must not receive it."}
