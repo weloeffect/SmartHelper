@@ -108,6 +108,30 @@ class RealtimeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([item["type"] for item in self.browser.events[-3:]], ["answer_delta", "audio", "turn_done"])
         self.assertTrue(self.browser.events[-1]["request_id"])
 
+    async def test_typed_turn_is_text_only_and_voice_turn_restores_audio(self):
+        await self.bridge.from_provider({"type": "session.updated"})
+        await self.bridge.from_browser({"type": "text", "text": "What is SmartHelper?"})
+        self.assertEqual(self.provider.events[0], {
+            "type": "session.update", "session": {"modalities": ["text"]},
+        })
+        await self.bridge.from_provider({"type": "session.updated"})
+        self.assertEqual([event["type"] for event in self.browser.events], ["ready"])
+        await self.bridge.from_provider({
+            "type": "response.function_call_arguments.done", "name": "search_public_docs",
+            "call_id": "call-text", "arguments": '{"query":"What is SmartHelper?"}',
+        })
+        await self.bridge.from_provider({"type": "response.done"})
+        await self.bridge.from_provider({"type": "response.text.delta", "delta": "A support assistant."})
+        await self.bridge.from_provider({"type": "response.audio.delta", "delta": "AAAA"})
+        await self.bridge.from_provider({"type": "response.done"})
+        self.assertEqual([event["type"] for event in self.browser.events[-2:]], ["answer_delta", "turn_done"])
+
+        frame = base64.b64encode(b"\x00\x00" * 100).decode()
+        await self.bridge.from_browser({"type": "audio", "audio": frame})
+        self.assertEqual(self.provider.events[-2], {
+            "type": "session.update", "session": {"modalities": ["text", "audio"]},
+        })
+
     async def test_history_restore_replays_user_and_assistant_without_generating_answer(self):
         await self.bridge.from_browser({"type": "restore", "turns": [{
             "question": "Can a Viewer edit a task?", "answer": "No. Viewers cannot edit tasks."

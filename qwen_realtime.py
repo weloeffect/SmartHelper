@@ -103,12 +103,19 @@ class RealtimeBridge:
         self.answer_audio: list[str] = []
         self.answer_audio_chars = 0
         self.blocked_turn = False
+        self.output_modalities = ("text", "audio")
+        self.session_ready_sent = False
 
     async def send_provider(self, event: dict) -> None:
         await self.provider.send(json.dumps(event, ensure_ascii=False))
 
     async def send_browser(self, event: dict) -> None:
         await self.browser.send_json(event)
+
+    async def set_output_modalities(self, modalities: tuple[str, ...]) -> None:
+        if self.output_modalities != modalities:
+            await self.send_provider({"type": "session.update", "session": {"modalities": list(modalities)}})
+            self.output_modalities = modalities
 
     def reset_turn(self) -> None:
         self.docs_checked = False
@@ -131,6 +138,7 @@ class RealtimeBridge:
     async def from_browser(self, event: dict) -> None:
         kind = event.get("type")
         if kind == "audio":
+            await self.set_output_modalities(("text", "audio"))
             encoded = event.get("audio", "")
             if not isinstance(encoded, str) or len(encoded) > 40_000:
                 raise ValueError("Audio frame is too large.")
@@ -164,6 +172,7 @@ class RealtimeBridge:
             if retry_after := rate_limiter.check(self.client_id, "turn", MAX_TURNS_PER_WINDOW):
                 raise ValueError(f"Too many questions. Try again in {retry_after} seconds.")
             self.reset_turn()
+            await self.set_output_modalities(("text",))
             await self.send_provider({"type": "conversation.item.create", "item": {
                 "type": "message", "role": "user", "content": [{"type": "input_text", "text": text.strip()}]
             }})
@@ -235,7 +244,9 @@ class RealtimeBridge:
         if self.blocked_turn and kind != "session.updated":
             return
         if kind == "session.updated":
-            await self.send_browser({"type": "ready"})
+            if not self.session_ready_sent:
+                self.session_ready_sent = True
+                await self.send_browser({"type": "ready"})
         elif kind == "input_audio_buffer.committed" and self.pending_commit:
             self.pending_commit = False
             await self.send_provider({"type": "response.create"})
@@ -267,7 +278,7 @@ class RealtimeBridge:
                 self.answer_text = complete
                 if message := moderate_text(complete, user_input=False):
                     await self.block_turn("I can't provide that answer. Please contact support.")
-        elif kind == "response.audio.delta" and self.docs_checked:
+        elif kind == "response.audio.delta" and self.docs_checked and self.output_modalities == ("text", "audio"):
             encoded = event.get("delta", "")
             if isinstance(encoded, str) and encoded:
                 self.answer_audio_chars += len(encoded)

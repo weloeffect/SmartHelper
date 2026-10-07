@@ -8,7 +8,7 @@ The included `mock_data/` directory contains seven public sample documents and o
 
 - Streams microphone audio to the local server, which relays it to `qwen3.8-omni-flash-realtime` on QwenCloud. Click the red stop button to finish and send a voice question.
 - Displays QwenCloud's input speech transcript in the conversation and streams the answer as text and audio.
-- Accepts typed questions through the same QwenCloud real-time session.
+- Accepts typed questions through the same QwenCloud real-time session with text-only answers. Audio replies are enabled for microphone questions.
 - Lets users rate completed answers as helpful or unhelpful.
 - Saves completed conversations in this browser so users can reopen a chat and continue with its prior text context.
 - Requires the model to call the server-side `search_public_docs` tool before an answer is shown or played. This tool searches only the approved public documents and returns source links.

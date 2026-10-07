@@ -99,6 +99,7 @@ let playbackTime = 0;
 let playbackQueue = Promise.resolve();
 let audioEpoch = 0;
 let suppressAudio = false;
+let connectionMode = "text";
 const playingSources = new Set();
 let answerNode = null;
 let answerText = null;
@@ -254,7 +255,7 @@ function onServerEvent(event) {
     case "ready":
       ready = true;
       if (activeSession?.turns.length) sendEvent({ type: "restore", turns: activeSession.turns.slice(-20).map(turn => ({ question: turn.question, answer: turn.answer })) });
-      setVoiceStatus("Tap the microphone to speak. Tap again to finish.");
+      setVoiceStatus(connectionMode === "voice" ? "Tap the microphone to ask by voice." : "Ready for your question.");
       break;
     case "sources":
       displaySources(event.citations);
@@ -296,7 +297,7 @@ function onServerEvent(event) {
       turnActive = false;
       sendButton.disabled = false;
       resetAnswer();
-      setVoiceStatus("Tap the microphone to ask another question.");
+      setVoiceStatus("Ask another question or use the microphone.");
       break;
     case "error":
       if (voiceMessageBubble && !voiceTranscript) voiceMessageBubble.textContent = "Audio question (transcript unavailable)";
@@ -312,10 +313,11 @@ function onServerEvent(event) {
   }
 }
 
-function ensureSocket() {
+function ensureSocket(mode) {
   if (socket?.readyState === WebSocket.OPEN && ready) return Promise.resolve();
   if (connectPromise) return connectPromise;
-  setVoiceStatus("Activating voice...");
+  connectionMode = mode;
+  setVoiceStatus(mode === "voice" ? "Activating voice..." : "Connecting...");
   connectPromise = new Promise((resolve, reject) => {
     const scheme = location.protocol === "https:" ? "wss:" : "ws:";
     const connection = new WebSocket(`${scheme}//${location.host}/api/realtime`);
@@ -415,7 +417,7 @@ async function toggleMicrophone() {
   }
   voiceButton.disabled = true;
   try {
-    await ensureSocket();
+    await ensureSocket("voice");
     if (turnActive) {
       sendEvent({ type: "cancel" });
       stopPlayback();
@@ -467,9 +469,9 @@ async function askText(question) {
   turnActive = true;
   sendButton.disabled = true;
   try {
-    await ensureSocket();
+    await ensureSocket("text");
     stopPlayback();
-    suppressAudio = false;
+    suppressAudio = true;
     addUserMessage(question);
     pendingQuestion = question;
     currentCitations = [];
