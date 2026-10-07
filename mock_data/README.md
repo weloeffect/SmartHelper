@@ -1,6 +1,6 @@
 # Mock documentation for the RAG assistant MVP
 
-This is a fictional documentation set for **HarborDesk**, a team task-management product. All names, limits, prices, dates, and procedures are invented for testing. No accounts or external services are needed.
+This is a fictional documentation set for **SmartHelper**, a team task-management product. All names, limits, prices, dates, and procedures are invented for testing. No accounts or external services are needed.
 
 ## Contents
 

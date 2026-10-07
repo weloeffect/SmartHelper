@@ -1,8 +1,8 @@
 {
-  "dataset": "harbordesk-mock-docs",
+  "dataset": "smarthelper-mock-docs",
   "version": "1.0",
   "documents": [
-    { "id": "HD-PROD-001", "title": "Get started with HarborDesk", "source_type": "product_guide", "source_uri": "docs/product/getting-started.md", "visibility": "public", "updated_at": "2026-09-10" },
+    { "id": "HD-PROD-001", "title": "Get started with SmartHelper", "source_type": "product_guide", "source_uri": "docs/product/getting-started.md", "visibility": "public", "updated_at": "2026-09-10" },
     { "id": "HD-PROD-002", "title": "Workspaces, roles, and permissions", "source_type": "product_guide", "source_uri": "docs/product/workspaces-and-roles.md", "visibility": "public", "updated_at": "2026-09-12" },
     { "id": "HD-PROD-003", "title": "API authentication and rate limits", "source_type": "developer_guide", "source_uri": "docs/product/api-authentication.md", "visibility": "public", "updated_at": "2026-09-18" },
     { "id": "HD-PROD-004", "title": "Webhooks", "source_type": "developer_guide", "source_uri": "docs/product/webhooks.md", "visibility": "public", "updated_at": "2026-09-19" },

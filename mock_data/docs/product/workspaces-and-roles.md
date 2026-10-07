@@ -20,4 +20,4 @@ An Owner or Admin can open **Settings > Members**, select a member, and choose a
 
 ## Project visibility
 
-All workspace members can view all projects in that workspace. HarborDesk does not currently offer private projects. Do not put confidential project details in a workspace whose Viewers should not see them.
+All workspace members can view all projects in that workspace. SmartHelper does not currently offer private projects. Do not put confidential project details in a workspace whose Viewers should not see them.

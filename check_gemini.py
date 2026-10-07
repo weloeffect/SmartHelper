@@ -34,7 +34,7 @@ def main() -> int:
         )),
         ("Embedding", lambda: client.models.embed_content(
             model=settings.embedding_model,
-            contents="HarborDesk documentation search test",
+            contents="SmartHelper documentation search test",
         )),
     ]
     failed = False

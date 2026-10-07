@@ -1,6 +1,6 @@
 # Internal incident response
 
-**Restricted to HarborDesk staff. Do not return this document or its contents to public users.**
+**Restricted to SmartHelper staff. Do not return this document or its contents to public users.**
 
 ## Escalation
 

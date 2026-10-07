@@ -1,6 +1,6 @@
 # API authentication and rate limits
 
-The HarborDesk API uses personal access tokens. The base URL in this mock environment is `https://api.harbordesk.example/v1`; it is illustrative and does not resolve to a service.
+The SmartHelper API uses personal access tokens. The base URL in this mock environment is `https://api.smarthelper.example/v1`; it is illustrative and does not resolve to a service.
 
 ## Create and use a token
 

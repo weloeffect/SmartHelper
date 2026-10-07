@@ -1,6 +1,6 @@
-# Get started with HarborDesk
+# Get started with SmartHelper
 
-HarborDesk organizes work into workspaces, projects, and tasks. A workspace contains one or more projects. Every task belongs to exactly one project.
+SmartHelper organizes work into workspaces, projects, and tasks. A workspace contains one or more projects. Every task belongs to exactly one project.
 
 ## Create a workspace
 

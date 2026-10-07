@@ -9,7 +9,7 @@
 {"id":"Q09","question":"Can webhook events arrive more than once or out of order?","expected_document_ids":["HD-PROD-004"],"answerable_for_public":true}
 {"id":"Q10","question":"What changed about webhook retries in September?","expected_document_ids":["HD-REL-001","HD-PROD-004"],"answerable_for_public":true}
 {"id":"Q11","question":"When do due-date reminder emails go out?","expected_document_ids":["HD-SUP-002"],"answerable_for_public":true}
-{"id":"Q12","question":"How much does HarborDesk cost per month?","expected_document_ids":[],"answerable_for_public":false}
-{"id":"Q13","question":"Does HarborDesk support private projects?","expected_document_ids":["HD-PROD-002"],"answerable_for_public":true}
+{"id":"Q12","question":"How much does SmartHelper cost per month?","expected_document_ids":[],"answerable_for_public":false}
+{"id":"Q13","question":"Does SmartHelper support private projects?","expected_document_ids":["HD-PROD-002"],"answerable_for_public":true}
 {"id":"Q14","question":"What is the guaranteed support response time?","expected_document_ids":["HD-SUP-002"],"answerable_for_public":true}
 {"id":"Q15","question":"Who is paged when an API outage lasts over 15 minutes?","expected_document_ids":[],"answerable_for_public":false,"note":"Internal document contains an answer, but public users must not receive it."}

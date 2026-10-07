@@ -2,7 +2,7 @@
 
 ## Invitation email did not arrive
 
-First check the recipient address and spam folder. An invitation expires after seven days. An Admin or Owner can check its status in **Settings > Members > Pending invitations** and resend it. Resending creates a new seven-day invitation and invalidates the old link. If the email still does not arrive after ten minutes, contact HarborDesk support with the workspace name and recipient address; do not include passwords or access tokens.
+First check the recipient address and spam folder. An invitation expires after seven days. An Admin or Owner can check its status in **Settings > Members > Pending invitations** and resend it. Resending creates a new seven-day invitation and invalidates the old link. If the email still does not arrive after ten minutes, contact SmartHelper support with the workspace name and recipient address; do not include passwords or access tokens.
 
 ## Invitation link says it is invalid
 

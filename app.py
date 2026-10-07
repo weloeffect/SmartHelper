@@ -3,17 +3,20 @@
 from datetime import datetime, timezone
 import html
 import json
+import re
 from pathlib import Path
 from threading import Lock
+from urllib.parse import quote
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, WebSocket
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi import FastAPI, HTTPException, Request, WebSocket
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import httpx
 from pydantic import BaseModel, Field
 
 from gemini_config import get_settings
+from guardrails import MAX_TURNS_PER_WINDOW, moderate_text, rate_limiter
 from rag_engine import CACHE_PATH, RagEngine
 from qwen_realtime import MODEL as REALTIME_MODEL, bridge_realtime, realtime_config
 
@@ -21,9 +24,23 @@ from qwen_realtime import MODEL as REALTIME_MODEL, bridge_realtime, realtime_con
 ROOT = Path(__file__).resolve().parent
 settings = get_settings(require_api_key=False)
 engine = RagEngine(settings)
-app = FastAPI(title="SmartHelper", version="0.1.0")
+app = FastAPI(title="SmartHelper", version="0.1.0", docs_url="/api/reference")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 feedback_lock = Lock()
+
+
+@app.middleware("http")
+async def limit_api_requests(request: Request, call_next):
+    if request.method == "POST" and request.url.path.startswith("/api/"):
+        client = request.client.host if request.client else "unknown"
+        retry_after = rate_limiter.check(client, "http", MAX_TURNS_PER_WINDOW)
+        if retry_after:
+            return JSONResponse(
+                {"detail": "Too many requests. Please wait and try again."},
+                status_code=429,
+                headers={"Retry-After": str(retry_after)},
+            )
+    return await call_next(request)
 
 
 class QuestionRequest(BaseModel):
@@ -62,6 +79,8 @@ async def realtime_socket(websocket: WebSocket) -> None:
 
 @app.post("/api/search")
 def search(request: QuestionRequest) -> dict:
+    if message := moderate_text(request.question):
+        raise HTTPException(status_code=400, detail=message)
     try:
         results = engine.search(request.question, use_embeddings=False)
     except ValueError as exc:
@@ -71,6 +90,8 @@ def search(request: QuestionRequest) -> dict:
 
 @app.post("/api/chat")
 def chat(request: QuestionRequest) -> dict:
+    if message := moderate_text(request.question):
+        raise HTTPException(status_code=400, detail=message)
     try:
         result = engine.answer(request.question)
     except ValueError as exc:
@@ -89,6 +110,8 @@ def chat(request: QuestionRequest) -> dict:
             status_code=503,
             detail=f"Gemini request failed ({name}{suffix}). Run check_gemini.py --live in the same PowerShell window for details.",
         ) from exc
+    if message := moderate_text(result.get("answer", ""), user_input=False):
+        result = {"answer": "I can't provide that answer. Please contact support.", "citations": [], "mode": "moderated"}
     return {"request_id": str(uuid4()), **result}
 
 
@@ -116,6 +139,61 @@ def feedback(request: FeedbackRequest) -> dict:
     return {"saved": True}
 
 
+@app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
+def document_index() -> HTMLResponse:
+    categories = (
+        ("product_guide", "Product guides", "Learn the core SmartHelper workflow.", "01"),
+        ("developer_guide", "Developer guides", "Build with the API and webhooks.", "02"),
+        ("support_article", "Support articles", "Find practical answers and troubleshooting steps.", "03"),
+        ("release_note", "Release notes", "See what changed in SmartHelper.", "04"),
+    )
+    parts = [
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width,initial-scale=1">',
+        '<title>Documentation · SmartHelper</title>',
+        '<link rel="stylesheet" href="/static/docs.css?v=3"></head><body>',
+        '<header class="docs-topbar"><a class="docs-brand" href="/" aria-label="SmartHelper home"><span class="docs-brand-mark">S</span><span>SmartHelper</span></a></header>',
+        '<main class="docs-main"><section class="docs-hero">',
+        '<div class="docs-eyebrow">SMARTHELPER HELP CENTER</div>',
+        '<div class="docs-hero-row"><div><h1>Documentation</h1>',
+        '<p>Clear, practical guides for using and building with SmartHelper. Browse by topic, then open a document to read every section.</p></div></div>',
+        '</section><nav class="docs-jump" aria-label="Documentation categories">',
+    ]
+    for source_type, heading, _, _ in categories:
+        if any(item["source_type"] == source_type for item in engine.documents.values()):
+            parts.append(f'<a href="#{source_type}">{heading}</a>')
+    parts.append('</nav><div class="docs-sections">')
+    for source_type, heading, description, number in categories:
+        documents = [(key, value) for key, value in engine.documents.items() if value["source_type"] == source_type]
+        if not documents:
+            continue
+        parts.extend([
+            f'<section id="{source_type}" class="docs-category">',
+            '<div class="docs-category-heading">',
+            f'<span class="docs-category-number">{number}</span><div><h2>{heading}</h2><p>{description}</p></div>',
+            f'<span class="docs-category-count">{len(documents)} {"document" if len(documents) == 1 else "documents"}</span>',
+            '</div><div class="docs-grid">',
+        ])
+        for document_id, document in documents:
+            sections = [chunk for chunk in engine.chunks if chunk.document_id == document_id]
+            raw_preview = sections[0].text.strip().split("\n\n", 1)[0] if sections else ""
+            preview = re.sub(r"\s+", " ", re.sub(r"\[([^]]+)\]\([^)]+\)", r"\1", raw_preview))
+            preview = preview.replace("**", "").replace("`", "")
+            if len(preview) > 170:
+                preview = preview[:167].rstrip() + "…"
+            parts.extend([
+                f'<a class="docs-card" href="/docs/{quote(document_id, safe="")}">',
+                '<span class="docs-card-arrow" aria-hidden="true">↗</span>',
+                f'<h3>{html.escape(document["title"])}</h3>',
+                f'<p>{html.escape(preview)}</p>',
+                f'<span class="docs-card-meta">{len(sections)} sections <span aria-hidden="true">·</span> Updated {html.escape(document["updated_at"])}</span>',
+                '</a>',
+            ])
+        parts.append('</div></section>')
+    parts.append('</div></main></body></html>')
+    return HTMLResponse("".join(parts))
+
+
 @app.get("/docs/{document_id}", response_class=HTMLResponse, include_in_schema=False)
 def document_view(document_id: str) -> HTMLResponse:
     document = engine.documents.get(document_id)
@@ -127,7 +205,7 @@ def document_view(document_id: str) -> HTMLResponse:
         '<meta name="viewport" content="width=device-width,initial-scale=1">',
         f'<title>{html.escape(document["title"])}</title>',
         '<link rel="stylesheet" href="/static/style.css"></head><body class="doc-page">',
-        '<main class="doc-shell"><a class="back-link" href="/">← Back to assistant</a>',
+        '<main class="doc-shell"><nav class="doc-nav"><a class="back-link" href="/">← Back to assistant</a><a class="back-link" href="/docs">All documentation</a></nav>',
         f'<div class="eyebrow">{html.escape(document["source_type"].replace("_", " "))} · Updated {html.escape(document["updated_at"])}</div>',
         f'<h1>{html.escape(document["title"])}</h1>',
     ]
