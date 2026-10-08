@@ -20,7 +20,7 @@ function loadSessions() {
   } catch { return []; }
 }
 let sessions = loadSessions();
-let activeSession = sessions[0] || null;
+let activeSession = null;
 let pendingQuestion = "";
 let currentCitations = [];
 
@@ -520,7 +520,7 @@ async function loadStatus() {
   }
 }
 
-openSession(activeSession);
+openSession(null);
 loadStatus();
 window.addEventListener("focus", loadStatus);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) loadStatus(); });
